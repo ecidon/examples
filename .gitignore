@@ -1,0 +1,6 @@
+**/*.pyc
+**/.DS_Store
+**/.idea
+**/.ipynb_checkpoints
+**/*.jpg
+**/*.png
