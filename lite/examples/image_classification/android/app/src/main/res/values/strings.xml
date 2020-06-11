@@ -8,6 +8,7 @@
         <item>Float_EfficientNet</item>
         <item>Quantized_MobileNet</item>
         <item>Float_MobileNet</item>
+        <item>Float_MobileNetV2</item>
     </string-array>
 
     <string name="tfe_ic_device" translatable="false">Device:</string>

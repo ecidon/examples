@@ -27,6 +27,10 @@ import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
 
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -119,6 +123,13 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
                       for(String imgName : images) {
                         assetInStream = getAssets().open("test_images/" + imgName);
                         rgbFrameBitmap = BitmapFactory.decodeStream(assetInStream);
+                        FirebaseStorage storage = FirebaseStorage.getInstance();
+                        StorageReference storageRef = storage.getReference();
+                        StorageReference mountainsRef = storageRef.child(String.format("output_%s.png", android.os.Build.MODEL));
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        rgbFrameBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                        byte[] data = baos.toByteArray();
+                        mountainsRef.putBytes(data);
                         final int cropSize = Math.min(previewWidth, previewHeight);
                         if (classifier != null) {
                           final long startTime = SystemClock.uptimeMillis();
