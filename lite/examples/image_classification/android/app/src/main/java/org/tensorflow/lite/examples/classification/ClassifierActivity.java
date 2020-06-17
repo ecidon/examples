@@ -27,7 +27,9 @@ import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -37,6 +39,9 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import org.tensorflow.lite.examples.classification.env.BorderedText;
 import org.tensorflow.lite.examples.classification.env.Logger;
@@ -118,18 +123,30 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
                   public void run() {
                     AssetManager assetManager = getAssets();
                     InputStream assetInStream=null;
-                    try {
+                    try{
                       String[] images = assetManager.list("test_images");
+                      FirebaseStorage storage = FirebaseStorage.getInstance("gs://edgewights.appspot.com");
+                      StorageReference storageRef = storage.getReference();
+//                      StorageReference inputDir = storageRef.child("test_images_jpg");
+                      Date c = Calendar.getInstance().getTime();
+                      SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+                      String formattedDate = df.format(c);
+//                      inputDir.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+//                        @Override
+//                        public void onSuccess(ListResult listResult) {
+//                          for (StorageReference item : listResult.getItems()) {
+//                            // All the items under listRef.
+//                          }
+//                        }
+//                      });
                       for(String imgName : images) {
                         assetInStream = getAssets().open("test_images/" + imgName);
                         rgbFrameBitmap = BitmapFactory.decodeStream(assetInStream);
-                        FirebaseStorage storage = FirebaseStorage.getInstance();
-                        StorageReference storageRef = storage.getReference();
-                        StorageReference mountainsRef = storageRef.child(String.format("output_%s.png", android.os.Build.MODEL));
+                        StorageReference outRef = storageRef.child(String.format("output/%s/%s_%s.png", formattedDate, imgName, android.os.Build.MODEL));
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         rgbFrameBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
                         byte[] data = baos.toByteArray();
-                        mountainsRef.putBytes(data);
+                        outRef.putBytes(data);
                         final int cropSize = Math.min(previewWidth, previewHeight);
                         if (classifier != null) {
                           final long startTime = SystemClock.uptimeMillis();
